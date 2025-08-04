@@ -5,7 +5,6 @@ import { Table, Spin } from "antd";
 const BATCH_SIZE = 10;
 
 const BookTable = ({ region, seed, avgLikes, avgReviews }) => {
-
   console.log("API BASE URL:", process.env.REACT_APP_API_BASE_URL);
 
   const [books, setBooks] = useState([]);
@@ -72,9 +71,19 @@ const BookTable = ({ region, seed, avgLikes, avgReviews }) => {
 
   const columns = [
     {
+      title: "#",
+      key: "rowNumber",
+      render: (_, __, index) => index + 1,
+    },
+    {
       title: "Title",
       dataIndex: "title",
       key: "title",
+    },
+    {
+      title: "ISBN",
+      dataIndex: "isbn",
+      key: "isbn",
     },
     {
       title: "Authors",
@@ -100,7 +109,6 @@ const BookTable = ({ region, seed, avgLikes, avgReviews }) => {
   ];
 
   return (
-    
     <div className="bg-white p-4 rounded shadow border overflow-y-auto h-[600px]">
       <Table
         dataSource={books.map((book, index) => ({
@@ -111,10 +119,7 @@ const BookTable = ({ region, seed, avgLikes, avgReviews }) => {
         pagination={false}
         expandable={{
           expandedRowRender: (record) => (
-            <div className="bg-gray-50 p-3 rounded">
-              <p>
-                <strong>ISBN:</strong> {record.isbn}
-              </p>
+            <div className="bg-gray-50 p-3 rounded space-y-2">
               <p>
                 <strong>Genre:</strong> {record.genre}
               </p>
@@ -124,17 +129,25 @@ const BookTable = ({ region, seed, avgLikes, avgReviews }) => {
               <p>
                 <strong>Description:</strong> {record.description}
               </p>
-              <p className="mt-2">
-                <strong>Review:</strong> {record.reviewText}
-              </p>
-              <p>
-                <strong>Reviewer:</strong> {record.reviewer}
-              </p>
-              <p>
-                <strong>Review Date:</strong> {record.reviewDate}
-              </p>
+              <div>
+                <strong>Reviews:</strong>
+                {record.reviewsList?.map((rev, i) => (
+                  <div key={i} className="mt-1 border-l-4 border-blue-400 pl-2">
+                    <p>
+                      <strong>Text:</strong> {rev.text}
+                    </p>
+                    <p>
+                      <strong>Reviewer:</strong> {rev.reviewer}
+                    </p>
+                    <p>
+                      <strong>Date:</strong> {rev.date}
+                    </p>
+                  </div>
+                )) || <p>No reviews available</p>}
+              </div>
             </div>
           ),
+
           rowExpandable: (record) => !!record.reviewText,
         }}
       />
