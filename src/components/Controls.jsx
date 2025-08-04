@@ -21,9 +21,9 @@ const Controls = ({
           value={region}
           onChange={(e) => setRegion(e.target.value)}
         >
-          <option value="en_US">English (USA)</option>
-          <option value="de_DE">German (Germany)</option>
-          <option value="ja_JP">Japanese (Japan)</option>
+          <option value="en">English</option>
+          <option value="de">German</option>
+          <option value="ru">Russian</option>
         </select>
       </div>
 

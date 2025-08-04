@@ -5,13 +5,10 @@ import { Table, Spin } from "antd";
 const BATCH_SIZE = 10;
 
 const BookTable = ({ region, seed, avgLikes, avgReviews }) => {
-  console.log("API BASE URL:", process.env.REACT_APP_API_BASE_URL);
-
   const [books, setBooks] = useState([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-
   const observer = useRef();
 
   const lastBookRef = useCallback(
@@ -31,19 +28,18 @@ const BookTable = ({ region, seed, avgLikes, avgReviews }) => {
   const fetchBooks = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        `https://bookstore-app-1-j2c9.onrender.com/books`,
-        {
-          params: {
-            region,
-            seed,
-            page,
-            likes: avgLikes,
-            reviews: avgReviews,
-            count: BATCH_SIZE,
-          },
-        }
-      );
+      const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+      const response = await axios.get(`${API_BASE_URL}/books`, {
+        params: {
+          region,
+          seed,
+          page,
+          likes: avgLikes,
+          reviews: avgReviews,
+          count: BATCH_SIZE,
+        },
+      });
 
       const newBooks = response.data.books;
 
@@ -57,14 +53,12 @@ const BookTable = ({ region, seed, avgLikes, avgReviews }) => {
     setLoading(false);
   };
 
-  // Reset books on props change
   useEffect(() => {
     setBooks([]);
     setPage(0);
     setHasMore(true);
   }, [region, seed, avgLikes, avgReviews]);
 
-  // Fetch on initial load and every page change
   useEffect(() => {
     fetchBooks();
   }, [page]);
@@ -131,24 +125,29 @@ const BookTable = ({ region, seed, avgLikes, avgReviews }) => {
               </p>
               <div>
                 <strong>Reviews:</strong>
-                {record.reviewsList?.map((rev, i) => (
-                  <div key={i} className="mt-1 border-l-4 border-blue-400 pl-2">
-                    <p>
-                      <strong>Text:</strong> {rev.text}
-                    </p>
-                    <p>
-                      <strong>Reviewer:</strong> {rev.reviewer}
-                    </p>
-                    <p>
-                      <strong>Date:</strong> {rev.date}
-                    </p>
-                  </div>
-                )) || <p>No reviews available</p>}
+                {record.reviewsArray && record.reviewsArray.length > 0 ? (
+                  <ul className="space-y-2 mt-2">
+                    {record.reviewsArray.map((rev, i) => (
+                      <li
+                        key={i}
+                        className="border-l-4 border-blue-400 pl-3 bg-white rounded shadow-sm p-2"
+                      >
+                        <p>
+                          <strong>{rev.reviewer}</strong> – {rev.date}
+                        </p>
+                        <p className="text-yellow-600">⭐ {rev.rating}</p>
+                        <p>{rev.text}</p>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-500">No reviews available</p>
+                )}
               </div>
             </div>
           ),
-
-          rowExpandable: (record) => !!record.reviewText,
+          rowExpandable: (record) =>
+            !!record.description || !!record.reviewsArray?.length,
         }}
       />
 
